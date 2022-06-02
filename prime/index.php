@@ -43,13 +43,11 @@ $TOKEN =  $ansver_auth['token'];
 // $params_shops = array(
   
 // );
-$result_shops = file_get_contents("https://api.livesklad.com/shops/5e113e2c7110be1850679bc4/orders", false, stream_context_create(array(
+$result_shops = file_get_contents("https://api.livesklad.com/shops/", false, stream_context_create(array(
     'http' => array(
         'method'  => 'GET',
         'header'  => "Content-type: application/x-www-form-urlencoded\r\n" 
         . "Authorization: ".$TOKEN,
-        // 'content' => http_build_query($params_shops)
-
     )
 )));
 
