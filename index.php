@@ -17,6 +17,61 @@
             font-style: normal;
             /* background-color: #34C88C; */
         }
+
+        [type="radio"]:checked,
+        [type="radio"]:not(:checked) {
+            position: absolute;
+            left: -9999px;
+        }
+
+        [type="radio"]:checked+label,
+        [type="radio"]:not(:checked)+label {
+            position: relative;
+            padding-left: 28px;
+            cursor: pointer;
+            line-height: 20px;
+            display: inline-block;
+            color: #666;
+        }
+
+        [type="radio"]:checked+label:before,
+        [type="radio"]:not(:checked)+label:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            border: 1px solid #ddd;
+            border-radius: 100%;
+            background: #fff;
+        }
+
+        [type="radio"]:checked+label:after,
+        [type="radio"]:not(:checked)+label:after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #F87DA9;
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            border-radius: 100%;
+            -webkit-transition: all 0.2s ease;
+            transition: all 0.2s ease;
+        }
+
+        [type="radio"]:not(:checked)+label:after {
+            opacity: 0;
+            -webkit-transform: scale(0);
+            transform: scale(0);
+        }
+
+        [type="radio"]:checked+label:after {
+            opacity: 1;
+            -webkit-transform: scale(1);
+            transform: scale(1);
+        }
     </style>
 
 </head>
@@ -48,32 +103,30 @@
     <section>
         <div class="container">
             <div class="col-6 mx-auto">
-                <h2>Выберите мастерскую</h2>
-                <form id="form_shop" class="mt-3">
-                    <select name="shop_id" id="shop_id" class="form-select" aria-label="Выберите мастерскую">
-                        <option selected>Выберите мастерскую</option>
+                <div id="form_shop_div" class="form_1 p-2 bg-light mb-3">
+                    <h2>Ваши данные</h2>
+                    <form id="form_shop" class="mt-3">
+                        <input class="form-control" type="text" name="agent_name" placeholder="Название организации">
+                        <!-- <input class="form-control" type="text" name="agent_data" placeholder="ФИО агента"> -->
+                        <button type="submit" class="btn btn-primary mt-3">Искать</button>
+                    </form>
+                </div>
 
+                <div id="user_agent_name_form_div" class="form_2 p-2 bg-light mb-3 d-none">
+                    <h2>Выберите из списка ваш аккаунт</h2>
+                    <form id="user_agent_name_form" class="mt-3">
+                        <select name="user_name" id="user_select" class="form-select" aria-label="Ваш аккаунт">
 
-                        <?php
-                        for ($shop = 0; $shop < count($shops_arr); $shop++) {
+                        </select>
+                        <button type="submit" class="btn btn-primary mt-3">Показать продажи</button>
 
-                        ?>
+                    </form>
+                </div>
+                <div class="content_container p-2 bg-light mb-3">
+                    <h2>Ваши покупки</h2>
+                    <div id="sales_container" class="sales_container">
 
-                            <option value="<?= $shops_arr['data'][$shop]['id'] ?>"><?= $shops_arr['data'][$shop]['name'] ?></option>
-
-                        <?php
-                        }
-
-                        ?>
-                    </select>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="basic-addon1">№</span>
-                        <input id="sales_number" name="sales_number" type="number" class="form-control" placeholder="Номер заказа" aria-label="Номер заказа" aria-describedby="basic-addon1">
                     </div>
-                    <button type="submit" class="btn btn-primary mt-3">Искать</button>
-                </form>
-                <div class="content_container mt-3">
-
                 </div>
             </div>
         </div>
@@ -81,58 +134,62 @@
 
     <script>
         let form_shop = document.getElementById('form_shop');
+        let form_shop_div = document.getElementById('form_shop_div');
         let sales_number_input = document.getElementById('sales_number');
+
+        let user_agent_name_form_div = document.getElementById('user_agent_name_form_div');
+        let user_agent_name_form = document.getElementById('user_agent_name_form');
 
         form_shop.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            let shop_id = document.getElementById('shop_id').value
+            // let shop_id = document.getElementById('shop_id').value
             let cont_container = document.querySelector('.content_container')
             let data_shop_id = $(form_shop).serializeArray();
+            let user_select = document.getElementById('user_select');
             // console.log(data_shop_id);
 
+            // получение контрагента
+            $.ajax({
+                type: "post",
+                url: "config/get_dataAgent_name.php",
+                data: data_shop_id,
+                success: function(res) {
+                    let response = JSON.parse(res)
+                    search_agent(response['data']);
+                }
+            });
+
+        })
+        // отправляем на сервак агента
+        user_agent_name_form.addEventListener('submit', (e) => {
+            let data_name_users = $(user_agent_name_form).serializeArray();
+            // console.log(data_name_users);
 
             $.ajax({
                 type: "post",
                 url: "config/get_shopData_sales.php",
-                data: data_shop_id,
+                data: data_name_users,
                 success: function(res) {
-                    if (res == 0) {
-                        cont_container.innerHTML = `<div>Вы не ввели номер покупки</div>`;
-                        // console.log('777');
-                    } else {
-                        let response = JSON.parse(res)
-                        // console.log(res);
-                        exit_data_sale(response);
-                    }
-
+                    let response = JSON.parse(res);
+                    console.log(JSON.parse(response));
                 }
             });
-
-            function exit_data_sale(arr) {
-
-                let sales_level = '';
-
-                if (arr['data'][0]['isBank'] == false) {
-                    sales_level = 'Наличкой';
-                } else {
-                    sales_level = 'Картой';
-
-                }
-
-
-                cont_container.innerHTML = `
-            <div>Продано в : ${arr['data'][0]['shop']['name']}</div>
-            <div>Квитанция номер : ${arr['data'][0]['number']}</div>
-            <div>Продано за : ${arr['data'][0]['summ']['soldPrice']}</div>
-            <div>Оплачено : ${sales_level}</div>
-            `;
-
-                sales_number_input.value = '';
-                shop_id = '';
-            }
-
         })
+
+        // functions //
+
+        // вывод имен в селект
+        function search_agent(arr_names) {
+            form_shop_div.classList.add('d-none');
+            user_agent_name_form_div.classList.remove('d-none');
+            let out = new Array;
+            for (let i = 0; i < arr_names.length; i++) {
+                out.push(`<option value="${arr_names[i]['name']}">${arr_names[i]['name']}</option>`);
+            }
+            // console.log(out);
+            user_select.innerHTML = out;
+        }
     </script>
 
 </body>
