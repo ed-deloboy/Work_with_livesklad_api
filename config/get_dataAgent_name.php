@@ -3,11 +3,12 @@ require_once 'get_token.php';
 
 $agent_name = trim($_POST['agent_name']);
 
-if ($agent_name == '') {
-    echo 0;
-} else {
+// if ($agent_name == '') {
+//     echo 0;
+// } else {
     $params_agents = array(
-        'filter' => $agent_name,
+        // 'filter' => $agent_name,
+        'filter' => 'харат',
         'pageSize' => '50',
     );
 
@@ -17,10 +18,12 @@ if ($agent_name == '') {
             'method'  => 'GET',
             'header'  => "Content-type: application/x-www-form-urlencoded\r\n"
                 . "Authorization: " . $TOKEN,
-            'content' => http_build_query($params_agents),
+            // 'content' => http_build_query($params_agents),
         )
     )));
 
 
-}
-echo $result_agent;
+// }
+print_r($TOKEN);
+echo '<br>';
+var_dump(json_decode($result_agent)) ;

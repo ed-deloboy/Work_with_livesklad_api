@@ -15,10 +15,10 @@
 
  $ansver_auth = json_decode($result_auth, true);
 
- // echo '<pre>';
+ echo '<pre>';
 
- // print_r($ansver_auth);
+ var_dump($ansver_auth);
 
- // echo '<br>';
+ echo '<br>';
 
  $TOKEN =  $ansver_auth['token'];
