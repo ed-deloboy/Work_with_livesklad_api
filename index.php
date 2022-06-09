@@ -94,27 +94,33 @@
     $shops_arr = json_decode($result_shops, true);
 
 
-    // echo '<pre>';
-    // echo '<br>';
-    // echo '<Контент json = >';
-    // print_r($shops_arr);
     ?>
 
     <section>
         <div class="container">
-            <div class="col-6 mx-auto">
+            <div class="col-12 mx-auto">
                 <div id="form_shop_div" class="form_1 p-2 bg-light mb-3">
                     <h2>Ваши данные</h2>
                     <form id="form_shop" class="mt-3">
                         <input class="form-control" type="text" name="agent_name" placeholder="Название организации">
+
                         <!-- <input class="form-control" type="text" name="agent_data" placeholder="ФИО агента"> -->
                         <button type="submit" class="btn btn-primary mt-3">Искать</button>
                     </form>
                 </div>
 
                 <div id="user_agent_name_form_div" class="form_2 p-2 bg-light mb-3 d-none">
-                    <h2>Выберите из списка ваш аккаунт</h2>
+                    <h2>Выберите город где купили и Ваш аккаунт</h2>
                     <form id="user_agent_name_form" class="mt-3">
+
+                        <label for="user_select">Город покупки</label>
+                        <select name="city_buy" id="city_buy" class="form-select mb-3" aria-label="Город покупки">
+                            <option value="">Выбрать</option>
+                            <option value="1">Ростов-на-Дону</option>
+                            <option value="2">Шахты</option>
+                            <option value="3">Красный Сулин</option>
+                        </select>
+                        <label for="user_select">Ваш аккаунт</label>
                         <select name="user_name" id="user_select" class="form-select" aria-label="Ваш аккаунт">
 
                         </select>
@@ -122,10 +128,28 @@
 
                     </form>
                 </div>
+                <div id="spinner_container" class="d-flex justify-content-center pt-4 mt-3 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
                 <div class="content_container p-2 bg-light mb-3">
-                    <h2>Ваши покупки</h2>
-                    <div id="sales_container" class="sales_container">
-
+                    <!-- <h2>Ваши покупки</h2> -->
+                    <div class="sales_container">
+                        <table id="table" class="table d-none">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Гарантия</th>
+                                    <th scope="col">Название</th>
+                                    <th scope="col">Цена</th>
+                                </tr>
+                            </thead>
+                            <tbody id="t_body">
+                                
+                            </tbody>
+                        </table>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -136,13 +160,18 @@
         let form_shop = document.getElementById('form_shop');
         let form_shop_div = document.getElementById('form_shop_div');
         let sales_number_input = document.getElementById('sales_number');
+        let data_container = document.getElementById('sales_container');
+        let spinner_container = document.getElementById('spinner_container');
+        let table = document.getElementById('table');
+        let t_body = document.getElementById('t_body');
+        
 
         let user_agent_name_form_div = document.getElementById('user_agent_name_form_div');
         let user_agent_name_form = document.getElementById('user_agent_name_form');
 
         form_shop.addEventListener('submit', (e) => {
             e.preventDefault();
-
+            spinner_container.classList.remove('d-none');
             // let shop_id = document.getElementById('shop_id').value
             let cont_container = document.querySelector('.content_container')
             let data_shop_id = $(form_shop).serializeArray();
@@ -155,7 +184,11 @@
                 url: "config/get_dataAgent_name.php",
                 data: data_shop_id,
                 success: function(res) {
+                    spinner_container.classList.add('d-none');
+                    form_shop_div.classList.add('d-none')
+                    user_agent_name_form_div.classList.remove('d-none')
                     let response = JSON.parse(res)
+                    // console.log(response);
                     search_agent(response['data']);
                 }
             });
@@ -163,6 +196,9 @@
         })
         // отправляем на сервак агента
         user_agent_name_form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            spinner_container.classList.remove('d-none');
+
             let data_name_users = $(user_agent_name_form).serializeArray();
             // console.log(data_name_users);
 
@@ -171,18 +207,35 @@
                 url: "config/get_shopData_sales.php",
                 data: data_name_users,
                 success: function(res) {
+                    // console.log(res);
+                    spinner_container.classList.add('d-none');
+                    table.classList.remove('d-none');
                     let response = JSON.parse(res);
-                    console.log(JSON.parse(response));
+                    console.log(response);
+                    // output_sales(response);
                 }
             });
         })
 
         // functions //
 
+        function output_sales(arr) {
+            for (let i = 0; i < data.length; i++) {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${arr[i]['data']['productHistories'][0]['guaranteeInMonth']}</td>
+                    <td>${arr[i]['data']['productHistories'][0]['name']}</td>
+                    <td>${arr[i]['data']['productHistories'][0]['soldPrice']}</td>
+                    `)
+                t_body.append(tr);
+            }
+
+        }
+
         // вывод имен в селект
         function search_agent(arr_names) {
-            form_shop_div.classList.add('d-none');
-            user_agent_name_form_div.classList.remove('d-none');
+            // form_shop_div.classList.add('d-none');
+            // user_agent_name_form_div.classList.remove('d-none');
             let out = new Array;
             for (let i = 0; i < arr_names.length; i++) {
                 out.push(`<option value="${arr_names[i]['name']}">${arr_names[i]['name']}</option>`);
