@@ -28,25 +28,34 @@ if ($city_buy == 1) {
 // } elseif ($city_id == '5ec7def8a5f389596ecbffb4') {
 //     $sales_prefix = 'ШП';
 // }
+$first_sales_array = array();
+
+for ($i = 1; $i < 6;) {
+
+    $request_sales = array(
+        'sort' => 'date DESC',
+        'pageSize' => '50',
+        'page' => $i,
+    );
+
+    // получаем данные по мастерской
+    $result_shops_sales = file_get_contents("https://api.livesklad.com/shops/" . $city_id . "/sales", false, stream_context_create(array(
+        // $result_shops_sales = file_get_contents("https://api.livesklad.com/shops/5e113e2c7110be1850679bc4/sales", false, stream_context_create(array(
+        'http' => array(
+            'method'  => 'GET',
+            'header'  => "Content-type: application/x-www-form-urlencoded\r\n"
+                . "Authorization: " . $TOKEN,
+            'content' => http_build_query($request_sales),
+        )
+    )));
+    $first_sales_array[] = json_decode($result_shops_sales, true);
+    sleep(1);
+}
 
 
-$request_sales = array(
-    'sort' => 'number DESC',
-    'pageSize' => '50',
-);
+echo $first_sales_array;
+exit();
 
-// получаем данные по мастерской
-$result_shops_sales = file_get_contents("https://api.livesklad.com/shops/" . $city_id . "/sales", false, stream_context_create(array(
-// $result_shops_sales = file_get_contents("https://api.livesklad.com/shops/5e113e2c7110be1850679bc4/sales", false, stream_context_create(array(
-    'http' => array(
-        'method'  => 'GET',
-        'header'  => "Content-type: application/x-www-form-urlencoded\r\n"
-            . "Authorization: " . $TOKEN,
-        'content' => http_build_query($request_sales),
-    )
-)));
-
-$shop_sales_50 = json_decode($result_shops_sales, true);
 $shop_sales_id = array();
 
 for ($id = 0; $id < count($shop_sales_50['data']); $id++) {

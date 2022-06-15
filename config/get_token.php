@@ -1,4 +1,6 @@
 <?php
+
+// echo 1;
  // получение токена через пост
  $livesklad_auth = 'https://api.livesklad.com/auth';
  $params_auth = array(
@@ -15,10 +17,8 @@
 
  $ansver_auth = json_decode($result_auth, true);
 
-//  echo '<pre>';
-
-//  var_dump($ansver_auth);
-
-//  echo '<br>';
-
  $TOKEN =  $ansver_auth['token'];
+
+$remainRequest = $ansver_auth['remainRequest'];
+
+//  print_r($ansver_auth);

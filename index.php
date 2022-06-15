@@ -184,12 +184,14 @@
                 url: "config/get_dataAgent_name.php",
                 data: data_shop_id,
                 success: function(res) {
+                    console.log(res);
+
                     spinner_container.classList.add('d-none');
                     form_shop_div.classList.add('d-none')
                     user_agent_name_form_div.classList.remove('d-none')
-                    let response = JSON.parse(res)
+                    // let response = JSON.parse(res)
                     // console.log(response);
-                    search_agent(response['data']);
+                    // search_agent(response['data']);
                 }
             });
 
@@ -207,11 +209,11 @@
                 url: "config/get_shopData_sales.php",
                 data: data_name_users,
                 success: function(res) {
-                    // console.log(res);
+                    console.log(res);
                     spinner_container.classList.add('d-none');
                     table.classList.remove('d-none');
                     let response = JSON.parse(res);
-                    console.log(response);
+                    // console.log(response);
                     // output_sales(response);
                 }
             });
@@ -226,7 +228,7 @@
                     <td>${arr[i]['data']['productHistories'][0]['guaranteeInMonth']}</td>
                     <td>${arr[i]['data']['productHistories'][0]['name']}</td>
                     <td>${arr[i]['data']['productHistories'][0]['soldPrice']}</td>
-                    `)
+                    `
                 t_body.append(tr);
             }
 
