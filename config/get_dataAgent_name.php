@@ -7,7 +7,9 @@ $agent_name = trim($_POST['agent_name']);
 
 $params_agents = array(
     'sort' => 'id DESC',
+    // 'sort' => 'id ASC',
     'pageSize' => '50',
+    // 'page' => '160',
     'page' => '1',
     'isBuyer' => true,
     'isVendor' => false,
@@ -25,15 +27,18 @@ $result_agent = file_get_contents("https://api.livesklad.com/counteragents/", fa
 
 $data = json_decode($result_agent, true);
 
-print_r($data);
-exit();
+// print_r($data);
+// exit();
 
 $ls_users = $data['data'];
 $users_for_db = array();
 echo $data['remainRequest'] . '<br>';
 
 $db_user_id = mysqli_fetch_all(mysqli_query($conn, "SELECT user_id FROM users ORDER BY id DESC LIMIT 50"));
-$db_user_id = array_reverse($db_user_id);
+// $db_user_id = mysqli_fetch_all(mysqli_query($conn, "SELECT * FROM users"));
+// print_r($db_user_id);
+// exit();
+// $db_user_id = array_reverse($db_user_id);
 
 for ($i = 0; $i < 50; $i++) {
     $position = 0;
@@ -45,6 +50,7 @@ for ($i = 0; $i < 50; $i++) {
 
         echo 'ID не совпали' . '<br>';
         echo 'Добавляем, в массив users_for_db id ' . $ls_users[$i]['id'] . '<br>';
+        echo '<br>';
 
         $ls_user_id = $ls_users[$i]['id'];
         $ls_user_category = $ls_users[$i]['customerFields']['text'];
@@ -56,6 +62,8 @@ for ($i = 0; $i < 50; $i++) {
     } else {
         echo 'ID совпали' . '<br>';
         echo 'Пропускаем ' . $ls_users[$i]['id'] . '<br>';
+        echo '<br>';
+
         $position = 1;
         if ($position == 1) {
             continue;
